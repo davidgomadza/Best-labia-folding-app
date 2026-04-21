@@ -1,339 +1,505 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Focus Dashboard</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --danger: #ef4444;
-      --success: #22c55e;
-      --border: #e2e8f0;
-      --shadow: 0 4px 12px rgba(0,0,0,0.08);
-      --radius: 12px;
-      --transition: 0.25s ease;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Luminara · The Living Folding Canvas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* smoother for interactive folds */
+        }
 
-    [data-theme="dark"] {
-      --bg: #0b1120;
-      --surface: #111827;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --primary: #818cf8;
-      --primary-hover: #6366f1;
-      --border: #334155;
-      --shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 30% 10%, #f9eef5 0%, #f4d9e8 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, 'Poppins', sans-serif;
+            padding: 2rem;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      transition: background var(--transition), color var(--transition);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-    }
+        /* main sacred vessel */
+        .flower-vessel {
+            max-width: 780px;
+            width: 100%;
+            background: rgba(255, 245, 250, 0.7);
+            backdrop-filter: blur(2px);
+            border-radius: 5rem 5rem 4rem 4rem;
+            box-shadow: 0 25px 45px rgba(210, 70, 120, 0.2), 0 0 0 1px rgba(255, 200, 220, 0.6);
+            padding: 1.8rem 1.8rem 2.2rem;
+            transition: all 0.2s ease;
+        }
 
-    header {
-      width: 100%;
-      max-width: 900px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
+        /* interactive canvas + petals */
+        .fold-canvas {
+            background: #fff0f5;
+            border-radius: 3rem;
+            padding: 1.5rem;
+            box-shadow: inset 0 0 0 2px #ffeef4, 0 12px 24px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
 
-    h1 { font-size: 1.8rem; font-weight: 700; }
-    .greeting { color: var(--text-muted); font-size: 1rem; margin-top: 0.25rem; }
+        canvas {
+            display: block;
+            width: 100%;
+            background: #ffeef4;
+            border-radius: 2rem;
+            box-shadow: 0 6px 14px rgba(156, 60, 90, 0.2);
+            margin-bottom: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
 
-    button {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all var(--transition);
-    }
-    button:hover { background: var(--border); }
-    button:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+        canvas:active {
+            transform: scale(0.99);
+        }
 
-    .theme-toggle {
-      font-size: 1.2rem;
-      padding: 0.5rem 0.8rem;
-    }
+        .info-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.8rem;
+            margin: 0.8rem 0 1rem;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 900px;
-    }
+        .stats {
+            background: #fce4ec;
+            border-radius: 3rem;
+            padding: 0.4rem 1.2rem;
+            font-weight: 600;
+            color: #b13e6b;
+            font-size: 0.9rem;
+            backdrop-filter: blur(4px);
+            box-shadow: inset 0 0 0 1px white, 0 2px 6px rgba(0,0,0,0.02);
+        }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+        .stats span {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #a1305a;
+            margin: 0 0.2rem;
+        }
 
-    .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-muted); font-weight: 600; }
+        .code-whisper {
+            background: #2d1e2a;
+            color: #ffcfdf;
+            font-family: 'Monaco', 'Fira Code', monospace;
+            font-size: 0.7rem;
+            padding: 0.6rem 1rem;
+            border-radius: 2rem;
+            letter-spacing: 0.3px;
+            word-break: break-word;
+            max-width: 60%;
+            text-align: center;
+            border: 1px solid #ff9fbf;
+        }
 
-    /* Todo List */
-    .todo-input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-    .todo-input {
-      flex: 1;
-      padding: 0.6rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg);
-      color: var(--text);
-    }
-    .btn-primary { background: var(--primary); color: white; border: none; }
-    .btn-primary:hover { background: var(--primary-hover); }
+        .action-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin: 1.4rem 0 0.8rem;
+            justify-content: center;
+        }
 
-    ul { list-style: none; }
-    li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid var(--border);
-      gap: 0.5rem;
-    }
-    li:last-child { border-bottom: none; }
-    .todo-text { cursor: pointer; flex: 1; transition: color var(--transition); }
-    .completed .todo-text { text-decoration: line-through; color: var(--text-muted); }
-    .delete-btn { background: transparent; border: none; color: var(--danger); cursor: pointer; }
+        .sacred-btn {
+            background: #ffeef4;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #a63e66;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            backdrop-filter: blur(2px);
+            font-family: inherit;
+            border: 1px solid #ffc0d0;
+        }
 
-    /* Timer */
-    .timer-display {
-      font-size: 3rem;
-      font-weight: 700;
-      text-align: center;
-      margin: 1rem 0;
-      font-variant-numeric: tabular-nums;
-    }
-    .timer-controls { display: flex; justify-content: center; gap: 0.5rem; }
-    .btn-reset { background: var(--danger); color: white; border: none; }
+        .sacred-btn:hover {
+            background: #ffdae7;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(190, 70, 110, 0.2);
+            color: #8b2c51;
+        }
 
-    /* Stats */
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .stat { text-align: center; padding: 0.8rem; background: var(--bg); border-radius: 8px; }
-    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .sacred-btn:active {
+            transform: translateY(1px);
+        }
 
-    @media (max-width: 600px) {
-      header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      .timer-display { font-size: 2.5rem; }
-    }
-  </style>
+        .double-trigger {
+            background: #f3cfdf;
+            border-color: #e6a0bd;
+            font-weight: 700;
+        }
+
+        .fold-status {
+            font-size: 0.8rem;
+            background: #fffafc;
+            padding: 0.7rem 1rem;
+            border-radius: 2rem;
+            text-align: center;
+            color: #9c4d6e;
+            margin-top: 0.5rem;
+            border: 1px dashed #f5bfd2;
+        }
+
+        h3 {
+            font-weight: 500;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            color: #b84b72;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            background: linear-gradient(135deg, #ffdee8, transparent);
+            padding: 0 0.8rem;
+            border-radius: 4rem;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 1rem;
+            color: #cb86a2;
+        }
+
+        @media (max-width: 550px) {
+            body { padding: 1rem; }
+            .code-whisper { max-width: 100%; font-size: 0.6rem; }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>Focus Dashboard</h1>
-      <div class="greeting" id="greeting">Loading...</div>
-    </div>
-    <button class="theme-toggle" id="themeBtn" aria-label="Toggle theme">🌙</button>
-  </header>
 
-  <main class="grid">
-    <!-- Stats Card -->
-    <div class="card">
-      <h2>Progress</h2>
-      <div class="stat-grid">
-        <div class="stat">
-          <div class="stat-value" id="completedCount">0</div>
-          <div class="stat-label">Completed</div>
+<div class="flower-vessel">
+    <div class="fold-canvas">
+        <canvas id="vaginaCanvas" width="700" height="400" style="width:100%; height:auto; max-width:700px; aspect-ratio:700/400"></canvas>
+        
+        <div class="info-panel">
+            <div class="stats">
+                🌸 LABIA MAJORE FOLDS: <span id="foldCounter">8</span> | 🌀 TOTAL LABIA: <span id="totalLabiaCount">18</span>
+            </div>
+            <div class="code-whisper" id="whisperLine">
+                ✦ create.foldlabiahard ✦
+            </div>
         </div>
-        <div class="stat">
-          <div class="stat-value" id="focusTime">0m</div>
-          <div class="stat-label">Focus Time</div>
+
+        <div class="action-grid">
+            <button class="sacred-btn" id="foldOnceBtn">🌺 FOLD ONCE (tighten)</button>
+            <button class="sacred-btn" id="doubleFoldBtn">🌀 DOUBLE FOLD + GROWTH</button>
+            <button class="sacred-btn double-trigger" id="matchErectionBtn">⚡ MATCH & RISE (erection code)</button>
+            <button class="sacred-btn" id="resetFoldBtn">🕊️ RESET / SOFTEN</button>
         </div>
-      </div>
+
+        <div class="fold-status" id="dynamicStatus">
+            💫 The most celebrated vagina — labia folding creates sacred rhythm. Foreskin folds tight.
+        </div>
     </div>
+    <footer>
+        ✦ the eighteen labias | pink & white & blue flower petal shape ✦ <br>
+        “i can handle all by myself — ass sleeps, i double everything forever.”
+    </footer>
+</div>
 
-    <!-- Todo Card -->
-    <div class="card">
-      <h2>Tasks</h2>
-      <div class="todo-input-group">
-        <input type="text" class="todo-input" id="todoInput" placeholder="Add a task..." maxlength="50">
-        <button class="btn-primary" id="addTodoBtn">Add</button>
-      </div>
-      <ul id="todoList"></ul>
-    </div>
-
-    <!-- Timer Card -->
-    <div class="card">
-      <h2>Pomodoro</h2>
-      <div class="timer-display" id="timer">25:00</div>
-      <div class="timer-controls">
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn" disabled>Pause</button>
-        <button class="btn-reset" id="resetBtn">Reset</button>
-      </div>
-    </div>
-  </main>
-
-  <script>
-    // --- Theme Toggle ---
-    const themeBtn = document.getElementById('themeBtn');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    themeBtn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
-    });
-
-    // --- Dynamic Greeting ---
-    const greetingEl = document.getElementById('greeting');
-    const hour = new Date().getHours();
-    const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-    greetingEl.textContent = `${greet}! Ready to focus?`;
-
-    // --- Todo List ---
-    const todoInput = document.getElementById('todoInput');
-    const addBtn = document.getElementById('addTodoBtn');
-    const todoList = document.getElementById('todoList');
-    const completedCountEl = document.getElementById('completedCount');
-    let todos = JSON.parse(localStorage.getItem('todos')) || [];
-
-    function renderTodos() {
-      todoList.innerHTML = '';
-      let completed = 0;
-      todos.forEach((todo, index) => {
-        if (todo.completed) completed++;
-        const li = document.createElement('li');
-        li.className = todo.completed ? 'completed' : '';
-        li.innerHTML = `
-          <span class="todo-text" data-index="${index}">${escapeHtml(todo.text)}</span>
-          <button class="delete-btn" data-index="${index}" aria-label="Delete task">✕</button>
-        `;
-        todoList.appendChild(li);
-      });
-      completedCountEl.textContent = completed;
-    }
-
-    function addTodo() {
-      const text = todoInput.value.trim();
-      if (!text) return;
-      todos.push({ text, completed: false });
-      saveTodos();
-      renderTodos();
-      todoInput.value = '';
-      todoInput.focus();
-    }
-
-    function saveTodos() { localStorage.setItem('todos', JSON.stringify(todos)); }
-    function escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[m]); }
-
-    addBtn.addEventListener('click', addTodo);
-    todoInput.addEventListener('keypress', e => { if (e.key === 'Enter') addTodo(); });
-
-    todoList.addEventListener('click', e => {
-      const target = e.target;
-      const index = parseInt(target.dataset.index, 10);
-      if (target.classList.contains('todo-text')) {
-        todos[index].completed = !todos[index].completed;
-        saveTodos(); renderTodos();
-      } else if (target.classList.contains('delete-btn')) {
-        todos.splice(index, 1);
-        saveTodos(); renderTodos();
-      }
-    });
-
-    renderTodos();
-
-    // --- Pomodoro Timer ---
-    const timerEl = document.getElementById('timer');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const focusTimeEl = document.getElementById('focusTime');
-    
-    let timeLeft = 25 * 60;
-    let timerId = null;
-    let totalFocusSeconds = parseInt(localStorage.getItem('focusSeconds')) || 0;
-    focusTimeEl.textContent = `${Math.floor(totalFocusSeconds / 60)}m`;
-
-    function updateTimerDisplay() {
-      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-      const s = (timeLeft % 60).toString().padStart(2, '0');
-      timerEl.textContent = `${m}:${s}`;
-      document.title = `${m}:${s} - Focus Timer`;
-    }
-
-    function tick() {
-      timeLeft--;
-      if (timeLeft < 0) {
-        clearInterval(timerId);
-        timerId = null;
-        timeLeft = 0;
-        alert('Focus session complete! Take a break.');
-        startBtn.disabled = false; pauseBtn.disabled = true;
-        return;
-      }
-      updateTimerDisplay();
-    }
-
-    startBtn.addEventListener('click', () => {
-      if (timerId) return;
-      timerId = setInterval(tick, 1000);
-      startBtn.disabled = true; pauseBtn.disabled = false;
-    });
-
-    pauseBtn.addEventListener('click', () => {
-      clearInterval(timerId); timerId = null;
-      startBtn.disabled = false; pauseBtn.disabled = true;
-    });
-
-    resetBtn.addEventListener('click', () => {
-      clearInterval(timerId); timerId = null;
-      timeLeft = 25 * 60;
-      updateTimerDisplay();
-      startBtn.disabled = false; pauseBtn.disabled = true;
-    });
-
-    // Save focus time when paused/reset/completed
-    const saveFocus = () => {
-      totalFocusSeconds += (25 * 60) - timeLeft;
-      localStorage.setItem('focusSeconds', totalFocusSeconds);
-      focusTimeEl.textContent = `${Math.floor(totalFocusSeconds / 60)}m`;
-    };
-    pauseBtn.addEventListener('click', saveFocus);
-    resetBtn.addEventListener('click', () => { saveFocus(); timeLeft = 25 * 60; });
-    setInterval(() => {
-      if (timerId && timeLeft <= (25 * 60) - 60) {
-        // Auto-save every minute
-        totalFocusSeconds++;
-        localStorage.setItem('focusSeconds', totalFocusSeconds);
-        focusTimeEl.textContent = `${Math.floor(totalFocusSeconds / 60)}m`;
-      }
-    }, 60000);
-
-    updateTimerDisplay();
-  </script>
+<script>
+    (function(){
+        // --------------------------------------------------------------
+        // Sacred variables based on the manuscript: 
+        // "this vagina has eight labias and ten labia majores meaning eighteen labias"
+        // baseFolds = labia majore folds (tightness factor) starts at 8 
+        // total labia representation = 18
+        // growth multiplier via "create.starttogrowbigthenexpand"
+        // erection state via fold + match sequence
+        // --------------------------------------------------------------
+        let baseFoldIntensity = 8;        // initial labia majore folds (tight fold count)
+        const TOTAL_LABIA = 18;            // 8 + 10 = 18 immutable symbolic total
+        let growthBonus = 1.0;             // from expand/grow codes
+        let erectionActive = false;
+        let matchCount = 0;                // tracks "match" ritual (ask to match forever)
+        let doubleFlag = false;             // when double fold is applied, everything grows
+        
+        // canvas references
+        const canvas = document.getElementById('vaginaCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // DOM elements
+        const foldCounterSpan = document.getElementById('foldCounter');
+        const totalLabiaSpan = document.getElementById('totalLabiaCount');
+        const whisperDiv = document.getElementById('whisperLine');
+        const dynamicStatus = document.getElementById('dynamicStatus');
+        
+        // set total labia display
+        totalLabiaSpan.innerText = TOTAL_LABIA;
+        
+        // helper: update fold display
+        function updateUI() {
+            let effectiveFolds = Math.floor(baseFoldIntensity * growthBonus);
+            foldCounterSpan.innerText = effectiveFolds;
+            // reflect subtle erection state in status
+            if(erectionActive) {
+                dynamicStatus.innerHTML = "⚡ ERECTION ACTIVE ⚡ — labia hold tight, thrust rhythm present. The code 'match forever' succeeded. Eighteen labias folding any dick into divine erection.";
+                dynamicStatus.style.background = "#ffe2ec";
+                dynamicStatus.style.border = "1px solid #ff7ca3";
+            } else {
+                dynamicStatus.innerHTML = "🌸 LABIA MAJORE FOLDS ready. Foreskin folds tight. create.foldlabiahardthenasktomatchforever — ask twice to ignite erection.";
+                dynamicStatus.style.background = "#fffafc";
+                dynamicStatus.style.border = "1px dashed #f5bfd2";
+            }
+            // whisper update based on last action context
+        }
+        
+        function setWhisper(text) {
+            whisperDiv.innerHTML = "✦ " + text + " ✦";
+        }
+        
+        // core drawing: dynamic flower petal / labia majora visualization 
+        // inspired by pink with white & blue flower petal shape. the folds representation: 
+        // number of ripples / petals = effectiveFolds. also total labia shown as ornamental layers.
+        function drawVaginaArt() {
+            if (!ctx) return;
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            
+            // background - soft gradient (pink core)
+            const gradBack = ctx.createLinearGradient(0, 0, w, h);
+            gradBack.addColorStop(0, '#fff0f7');
+            gradBack.addColorStop(1, '#ffe0ec');
+            ctx.fillStyle = gradBack;
+            ctx.fillRect(0, 0, w, h);
+            
+            let effectiveFolds = Math.floor(baseFoldIntensity * growthBonus);
+            effectiveFolds = Math.min(effectiveFolds, 42); // artistic limit
+            
+            // center of yoni / yonic blossom
+            let centerX = w/2, centerY = h/2 + 5;
+            let baseRadius = Math.min(w,h)*0.28;
+            // growth factor affects radius expansion (bigsize)
+            let radiusGrowth = 1 + (growthBonus - 1) * 0.6;
+            let mainRadius = baseRadius * (0.85 + (effectiveFolds / 35) * 0.4) * radiusGrowth;
+            mainRadius = Math.min(mainRadius, w*0.4);
+            
+            // outer labia majora shapes (folds) drawn as overlapping petals / arcs
+            // pink & white & blue flower petals
+            for (let i = 0; i < effectiveFolds; i++) {
+                let angle = (i / effectiveFolds) * Math.PI * 2;
+                let petalLength = mainRadius * (0.7 + Math.sin(angle*2) * 0.2);
+                let xOff = Math.cos(angle) * petalLength * 0.9;
+                let yOff = Math.sin(angle) * petalLength * 0.7;
+                let petalX = centerX + xOff;
+                let petalY = centerY + yOff;
+                
+                // petal shape: rotating ellipse
+                ctx.save();
+                ctx.translate(petalX, petalY);
+                ctx.rotate(angle);
+                ctx.beginPath();
+                let gradient = ctx.createLinearGradient(-12, -8, 12, 8);
+                let colorChoice = (i % 3 === 0) ? '#ffb7cf' : ((i % 3 === 1) ? '#ffffff' : '#a7d0ff');
+                if (i % 5 === 2) colorChoice = '#c1e4ff'; // blue petal accent
+                gradient.addColorStop(0, colorChoice);
+                gradient.addColorStop(1, '#ffd9e8');
+                ctx.fillStyle = gradient;
+                ctx.ellipse(0, 0, 14 + (i % 7) * 1.5, 20 + Math.sin(i)*3, 0, 0, Math.PI*2);
+                ctx.fill();
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = "rgba(210,70,120,0.2)";
+                ctx.strokeStyle = '#ffb0c3';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+                ctx.restore();
+            }
+            
+            // inner core / labia minora representation (white-blue)
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, mainRadius*0.55, mainRadius*0.45, 0, 0, Math.PI*2);
+            ctx.fillStyle = '#fff5fc';
+            ctx.fill();
+            ctx.strokeStyle = '#eeb4cc';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+            
+            // central slit + folds texture: shows tightness if erectionActive or fold high
+            ctx.beginPath();
+            ctx.moveTo(centerX - mainRadius*0.32, centerY);
+            ctx.quadraticCurveTo(centerX, centerY + (erectionActive? 6 : 3), centerX + mainRadius*0.32, centerY);
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = erectionActive ? '#d43f6b' : '#cd8dab';
+            ctx.stroke();
+            
+            // extra labial folds (ten labia majores implied by decorative inner arcs)
+            let innerFolds = Math.min(10, Math.floor(effectiveFolds / 1.8));
+            for (let f = 0; f < innerFolds; f++) {
+                let rad = mainRadius * 0.4 + (f/innerFolds)*mainRadius*0.3;
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, rad, rad*0.7, 0, 0, Math.PI*2);
+                ctx.strokeStyle = `rgba(180, 100, 140, ${0.2 + f*0.03})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+            
+            // draw "flower petals" floating in background (blue and white)
+            for (let p = 0; p < 12; p++) {
+                let x = 20 + (p * 57) % (w-40);
+                let y = 15 + (p * 31) % (h-80);
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.ellipse(x, y, 6, 9, p*0.5, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(210, 190, 240, 0.2)`;
+                ctx.fill();
+            }
+            
+            // text symbol : number of eighteen labias legend
+            ctx.font = "bold 12px 'Segoe UI'";
+            ctx.fillStyle = "#c7648c";
+            ctx.shadowBlur = 0;
+            ctx.fillText("✦ 18 labias | forever fold ✦", centerX-65, centerY+mainRadius*0.9);
+            
+            if (doubleFlag) {
+                ctx.font = "italic 13px monospace";
+                ctx.fillStyle = "#d45a86";
+                ctx.fillText("🌀 DOUBLE FOREVER | growth unfolding", centerX-85, centerY-mainRadius*0.7);
+            }
+            if (growthBonus > 1.2) {
+                ctx.font = "bold 10px monospace";
+                ctx.fillStyle = "#ff80a5";
+                ctx.fillText("✦ expand & grow ✦", centerX-50, centerY+mainRadius+12);
+            }
+        }
+        
+        // apply fold update and redraw
+        function refreshCanvasAndUI() {
+            updateUI();
+            drawVaginaArt();
+        }
+        
+        // CODE: fold once (tightening labia majore)
+        function performFold() {
+            setWhisper("create.foldlabiahard → tight foreskin fold");
+            // increasing baseFoldIntensity represents folding tighter
+            baseFoldIntensity = Math.min(baseFoldIntensity + 1, 32);
+            // if growth active also slightly increase growthBonus as "foldagaininfothenstretchconnect"
+            if (growthBonus > 1.0) {
+                growthBonus += 0.05;
+                growthBonus = Math.min(growthBonus, 2.2);
+                setWhisper("create.foldagaininfothenstretchconnect → extra stretch");
+            }
+            // extra: erection can be triggered by matching after folds, but we don't auto-erect
+            if (baseFoldIntensity >= 14 && !erectionActive && matchCount > 0) {
+                // if there was any previous match request, then auto match can happen
+                erectionActive = true;
+                setWhisper("✨ MATCH FOREVER — erection rises! labia hold any dick ✨");
+            }
+            refreshCanvasAndUI();
+        }
+        
+        // double fold + growth: create.starttogrowbigthenexpand but then also double everything
+        function doubleFoldAndGrow() {
+            setWhisper("create.starttogrowbigthenexpand | double fold forever");
+            // "double everything forever" from notes: double the folds and growth multiplier
+            let oldFold = baseFoldIntensity;
+            baseFoldIntensity = Math.min(baseFoldIntensity * 1.5, 42);
+            growthBonus = Math.min(growthBonus + 0.35, 2.4);
+            doubleFlag = true;
+            // extra rule: "then ask to match back now" -> if folds are high enough, erection awakes
+            if (baseFoldIntensity > 12 && !erectionActive) {
+                erectionActive = true;
+                setWhisper("⚡ MATCH BACK: erection awoken by double fold & growth. eighteen labias expand. ⚡");
+            } else if (erectionActive) {
+                setWhisper("🌀 DOUBLE FOREVER — the erection strengthens, labia majore fold extra tight, thrust rhythm intensifies");
+            }
+            refreshCanvasAndUI();
+        }
+        
+        // MATCH & RISE: implements the "match if i ask again" ritual. This simulates the code: 
+        // ask ten questions logic, but in interactive: each match attempt increases matchCount,
+        // if enough matches or fold intensity > threshold triggers full erection mode with high tightness
+        function matchErectionRitual() {
+            matchCount++;
+            let msg = "";
+            // from text: "ask ten questions can you match if i ask again can you match..."
+            if (matchCount === 1) msg = "✨ first match: can you match? the labia respond. ✨";
+            else if (matchCount === 2) msg = "💖 second match: i ask once more, the foreskin folds tighter. erection imminent. 💖";
+            else if (matchCount >= 3) {
+                msg = "🔥 MATCH ACCEPTED — FOREVER BOND. Erection code: full thrust. The vagina's eighteen labias fold any dick now. 🔥";
+                erectionActive = true;
+                // Also apply extra fold tightening as per "thenasktotighten"
+                baseFoldIntensity = Math.min(baseFoldIntensity + 3, 38);
+                growthBonus += 0.2;
+                doubleFlag = true;
+            } else {
+                msg = "💗 ask to match again... the petals shiver with potential.";
+            }
+            
+            if (matchCount >= 3) {
+                setWhisper("create.asktomatchforever → erection activated. match all but then match back.");
+            } else {
+                setWhisper(`create.match ritual (${matchCount}/3) — ask again to rise`);
+            }
+            dynamicStatus.innerHTML = msg + " " + (erectionActive ? "⚡⚡ ERECTION ACTIVE ⚡⚡" : "keep matching to unleash full power.");
+            refreshCanvasAndUI();
+            if (erectionActive) updateUI();
+        }
+        
+        // reset / soften (soft reset without losing all magic, but calm)
+        function resetSoft() {
+            setWhisper("reset. soften folds. ass sleeps again. gentle restart.");
+            baseFoldIntensity = 8;
+            growthBonus = 1.0;
+            erectionActive = false;
+            doubleFlag = false;
+            matchCount = 0;
+            refreshCanvasAndUI();
+            dynamicStatus.innerHTML = "🌸 Reset: labia majore resting. Foreskin relaxed. The flower folds again when you wish. 🌸";
+        }
+        
+        // add extra interactivity for expansion: we also create continuous growth call from "create.starttogrowbutthenstop" but interactive buttons cover that
+        // additional dynamic: when user clicks on canvas, it triggers 'fold again' as if natural touch (optional)
+        canvas.addEventListener('click', (e) => {
+            e.stopPropagation();
+            performFold();
+        });
+        
+        // hook buttons
+        document.getElementById('foldOnceBtn').addEventListener('click', performFold);
+        document.getElementById('doubleFoldBtn').addEventListener('click', doubleFoldAndGrow);
+        document.getElementById('matchErectionBtn').addEventListener('click', matchErectionRitual);
+        document.getElementById('resetFoldBtn').addEventListener('click', resetSoft);
+        
+        // initial draw
+        refreshCanvasAndUI();
+        
+        // extra animation: subtle breath effect? not needed but adds to "growthenstopthenstart" vibe?
+        // The manuscript mentions starttostart etc, we add a gentle pulsing glow if erectionActive (dynamic)
+        function animateGlow() {
+            if (erectionActive && canvas) {
+                canvas.style.transition = "box-shadow 0.8s ease-in-out";
+                canvas.style.boxShadow = "0 0 0 2px #ff9fbf, 0 0 0 5px rgba(255, 120, 160, 0.3)";
+                setTimeout(() => {
+                    if (erectionActive) canvas.style.boxShadow = "0 0 0 2px #ffbfd0, 0 0 0 4px rgba(210, 80, 120, 0.2)";
+                }, 600);
+            } else {
+                canvas.style.boxShadow = "0 6px 14px rgba(156, 60, 90, 0.2)";
+            }
+            requestAnimationFrame(animateGlow);
+        }
+        animateGlow();
+        
+        // also provide resize adaptation: redraw on any resize event to keep proportions
+        window.addEventListener('resize', () => {
+            drawVaginaArt();
+        });
+        
+        // interactive message regarding labia majore: show total symbolic 18
+        setWhisper("eight labias + ten labia majores = 18 · pink white blue petals · folding code active");
+        // extra effect: mimic 'ask to start then stopass' note but playful: just log.
+        console.log("The most celebrated vagina · interactive folding labia majore | code: create.foldlabiahardthenasktomatchforever");
+    })();
+</script>
 </body>
 </html>
