@@ -15,5 +15,3 @@
 - Adjust colors: edit CSS variables in `:root` and `[data-theme="dark"]`
 - Add more stats/cards: duplicate `.card` elements in the grid
 - Extend todos: add due dates, priorities, or categories by expanding the `todos` array structure
-
-Let me know if you want it adapted for a specific use case (e.g., weather widget, calculator, portfolio, game, etc.)!
