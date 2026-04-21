@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Focus Dashboard</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --border: #e2e8f0;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --radius: 12px;
+      --transition: 0.25s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b1120;
+      --surface: #111827;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #818cf8;
+      --primary-hover: #6366f1;
+      --border: #334155;
+      --shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 { font-size: 1.8rem; font-weight: 700; }
+    .greeting { color: var(--text-muted); font-size: 1rem; margin-top: 0.25rem; }
+
+    button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+    button:hover { background: var(--border); }
+    button:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+    .theme-toggle {
+      font-size: 1.2rem;
+      padding: 0.5rem 0.8rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+
+    .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-muted); font-weight: 600; }
+
+    /* Todo List */
+    .todo-input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .todo-input {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .btn-primary { background: var(--primary); color: white; border: none; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    ul { list-style: none; }
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+    li:last-child { border-bottom: none; }
+    .todo-text { cursor: pointer; flex: 1; transition: color var(--transition); }
+    .completed .todo-text { text-decoration: line-through; color: var(--text-muted); }
+    .delete-btn { background: transparent; border: none; color: var(--danger); cursor: pointer; }
+
+    /* Timer */
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 1rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-controls { display: flex; justify-content: center; gap: 0.5rem; }
+    .btn-reset { background: var(--danger); color: white; border: none; }
+
+    /* Stats */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .stat { text-align: center; padding: 0.8rem; background: var(--bg); border-radius: 8px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .timer-display { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Focus Dashboard</h1>
+      <div class="greeting" id="greeting">Loading...</div>
+    </div>
+    <button class="theme-toggle" id="themeBtn" aria-label="Toggle theme">🌙</button>
+  </header>
+
+  <main class="grid">
+    <!-- Stats Card -->
+    <div class="card">
+      <h2>Progress</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-value" id="completedCount">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="focusTime">0m</div>
+          <div class="stat-label">Focus Time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Todo Card -->
+    <div class="card">
+      <h2>Tasks</h2>
+      <div class="todo-input-group">
+        <input type="text" class="todo-input" id="todoInput" placeholder="Add a task..." maxlength="50">
+        <button class="btn-primary" id="addTodoBtn">Add</button>
+      </div>
+      <ul id="todoList"></ul>
+    </div>
+
+    <!-- Timer Card -->
+    <div class="card">
+      <h2>Pomodoro</h2>
+      <div class="timer-display" id="timer">25:00</div>
+      <div class="timer-controls">
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button class="btn-reset" id="resetBtn">Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // --- Theme Toggle ---
+    const themeBtn = document.getElementById('themeBtn');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    // --- Dynamic Greeting ---
+    const greetingEl = document.getElementById('greeting');
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    greetingEl.textContent = `${greet}! Ready to focus?`;
+
+    // --- Todo List ---
+    const todoInput = document.getElementById('todoInput');
+    const addBtn = document.getElementById('addTodoBtn');
+    const todoList = document.getElementById('todoList');
+    const completedCountEl = document.getElementById('completedCount');
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+    function renderTodos() {
+      todoList.innerHTML = '';
+      let completed = 0;
+      todos.forEach((todo, index) => {
+        if (todo.completed) completed++;
+        const li = document.createElement('li');
+        li.className = todo.completed ? 'completed' : '';
+        li.innerHTML = `
+          <span class="todo-text" data-index="${index}">${escapeHtml(todo.text)}</span>
+          <button class="delete-btn" data-index="${index}" aria-label="Delete task">✕</button>
+        `;
+        todoList.appendChild(li);
+      });
+      completedCountEl.textContent = completed;
+    }
+
+    function addTodo() {
+      const text = todoInput.value.trim();
+      if (!text) return;
+      todos.push({ text, completed: false });
+      saveTodos();
+      renderTodos();
+      todoInput.value = '';
+      todoInput.focus();
+    }
+
+    function saveTodos() { localStorage.setItem('todos', JSON.stringify(todos)); }
+    function escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[m]); }
+
+    addBtn.addEventListener('click', addTodo);
+    todoInput.addEventListener('keypress', e => { if (e.key === 'Enter') addTodo(); });
+
+    todoList.addEventListener('click', e => {
+      const target = e.target;
+      const index = parseInt(target.dataset.index, 10);
+      if (target.classList.contains('todo-text')) {
+        todos[index].completed = !todos[index].completed;
+        saveTodos(); renderTodos();
+      } else if (target.classList.contains('delete-btn')) {
+        todos.splice(index, 1);
+        saveTodos(); renderTodos();
+      }
+    });
+
+    renderTodos();
+
+    // --- Pomodoro Timer ---
+    const timerEl = document.getElementById('timer');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const focusTimeEl = document.getElementById('focusTime');
+    
+    let timeLeft = 25 * 60;
+    let timerId = null;
+    let totalFocusSeconds = parseInt(localStorage.getItem('focusSeconds')) || 0;
+    focusTimeEl.textContent = `${Math.floor(totalFocusSeconds / 60)}m`;
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const s = (timeLeft % 60).toString().padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+      document.title = `${m}:${s} - Focus Timer`;
+    }
+
+    function tick() {
+      timeLeft--;
+      if (timeLeft < 0) {
+        clearInterval(timerId);
+        timerId = null;
+        timeLeft = 0;
+        alert('Focus session complete! Take a break.');
+        startBtn.disabled = false; pauseBtn.disabled = true;
+        return;
+      }
+      updateTimerDisplay();
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (timerId) return;
+      timerId = setInterval(tick, 1000);
+      startBtn.disabled = true; pauseBtn.disabled = false;
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      clearInterval(timerId); timerId = null;
+      startBtn.disabled = false; pauseBtn.disabled = true;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      clearInterval(timerId); timerId = null;
+      timeLeft = 25 * 60;
+      updateTimerDisplay();
+      startBtn.disabled = false; pauseBtn.disabled = true;
+    });
+
+    // Save focus time when paused/reset/completed
+    const saveFocus = () => {
+      totalFocusSeconds += (25 * 60) - timeLeft;
+      localStorage.setItem('focusSeconds', totalFocusSeconds);
+      focusTimeEl.textContent = `${Math.floor(totalFocusSeconds / 60)}m`;
+    };
+    pauseBtn.addEventListener('click', saveFocus);
+    resetBtn.addEventListener('click', () => { saveFocus(); timeLeft = 25 * 60; });
+    setInterval(() => {
+      if (timerId && timeLeft <= (25 * 60) - 60) {
+        // Auto-save every minute
+        totalFocusSeconds++;
+        localStorage.setItem('focusSeconds', totalFocusSeconds);
+        focusTimeEl.textContent = `${Math.floor(totalFocusSeconds / 60)}m`;
+      }
+    }, 60000);
+
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
